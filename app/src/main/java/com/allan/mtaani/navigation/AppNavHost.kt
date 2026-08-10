@@ -7,6 +7,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.allan.mtaani.ui.screens.onboading.onboadingScreen1
+import com.allan.mtaani.ui.screens.onboading.onboadingScreen2
+import com.allan.mtaani.ui.screens.onboading.onboadingScreen3
+import com.allan.mtaani.ui.screens.splash.SplashScreen
 
 
 @Composable
@@ -22,6 +25,18 @@ fun AppNavHost(
     ) {
         composable(ROUT_ONBOADING1) {
             onboadingScreen1(navController)
+        }
+
+        composable(ROUT_SPLASH) {
+            SplashScreen(navController)
+        }
+
+        composable(ROUT_ONBOADING2) {
+            onboadingScreen2(navController)
+        }
+
+        composable(ROUT_ONBOADING3) {
+            onboadingScreen3(navController)
         }
 
 
