@@ -7,3 +7,7 @@ const val ROUT_SPLASH = "splash"
 const val ROUT_ONBOADING2 = "onboading2"
 
 const val ROUT_ONBOADING3 = "onboading3"
+const val ROUT_HOME = "home"
+
+const val ROUT_LOGIN = "login"
+const val ROUT_REGISTER = "register"

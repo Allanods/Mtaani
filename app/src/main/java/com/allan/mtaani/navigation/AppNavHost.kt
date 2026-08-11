@@ -6,6 +6,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.allan.mtaani.ui.screens.authentication.LoginScreen
+import com.allan.mtaani.ui.screens.authentication.RegisterScreen
+
+import com.allan.mtaani.ui.screens.home.HomeScreen
 import com.allan.mtaani.ui.screens.onboading.onboadingScreen1
 import com.allan.mtaani.ui.screens.onboading.onboadingScreen2
 import com.allan.mtaani.ui.screens.onboading.onboadingScreen3
@@ -16,7 +20,7 @@ import com.allan.mtaani.ui.screens.splash.SplashScreen
 fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = ROUT_ONBOADING1
+    startDestination: String = ROUT_SPLASH
 ) {
     NavHost(
         navController = navController,
@@ -37,6 +41,18 @@ fun AppNavHost(
 
         composable(ROUT_ONBOADING3) {
             onboadingScreen3(navController)
+        }
+
+        composable(ROUT_HOME) {
+            HomeScreen(navController)
+        }
+
+        composable(ROUT_LOGIN) {
+            LoginScreen(navController)
+        }
+
+        composable(ROUT_REGISTER) {
+            RegisterScreen(navController)
         }
 
 
