@@ -13,6 +13,7 @@ import com.allan.mtaani.ui.screens.home.HomeScreen
 import com.allan.mtaani.ui.screens.onboading.onboadingScreen1
 import com.allan.mtaani.ui.screens.onboading.onboadingScreen2
 import com.allan.mtaani.ui.screens.onboading.onboadingScreen3
+import com.allan.mtaani.ui.screens.report.ReportScreen
 import com.allan.mtaani.ui.screens.splash.SplashScreen
 
 
@@ -53,6 +54,10 @@ fun AppNavHost(
 
         composable(ROUT_REGISTER) {
             RegisterScreen(navController)
+        }
+
+        composable(ROUT_REPORT) {
+            ReportScreen(navController)
         }
 
 
