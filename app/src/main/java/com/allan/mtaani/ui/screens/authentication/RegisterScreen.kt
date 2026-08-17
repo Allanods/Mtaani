@@ -1,5 +1,7 @@
 package com.allan.mtaani.ui.screens.authentication
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Patterns
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,29 +46,61 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.allan.mtaani.navigation.ROUT_HOME
 import com.allan.mtaani.navigation.ROUT_LOGIN
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.userProfileChangeRequest
+import com.google.firebase.database.FirebaseDatabase
 
 @Composable
 fun RegisterScreen(navController: NavController) {
 
+    // Stores the full name entered by the user
     var fullName by remember { mutableStateOf("") }
+
+    // Stores the email entered by the user
     var email by remember { mutableStateOf("") }
+
+    // Stores the password entered by the user
     var password by remember { mutableStateOf("") }
+
+    // Stores the confirmation password entered by the user
     var confirmPassword by remember { mutableStateOf("") }
 
+    // Controls whether the password is visible or hidden
     var passwordVisible by remember { mutableStateOf(false) }
+
+    // Controls whether the confirmation password is visible or hidden
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
+    // Stores validation or Firebase error messages
     var errorMessage by remember { mutableStateOf("") }
 
+    // Stores the successful registration message
+    var successMessage by remember { mutableStateOf("") }
+
+    // Main green color used throughout the screen
     val mtaaniGreen = Color(0xFF0B5D45)
+
+    // Main dark text color
     val darkText = Color(0xFF1B1B1B)
+
+    // Color used for hints and secondary text
     val hintText = Color(0xFF777777)
+
+    // Gets the Firebase Authentication service
+    // This creates the user's Firebase account using email and password
+    val auth = if (LocalInspectionMode.current) null else FirebaseAuth.getInstance()
+
+    // Gets the Firebase Realtime Database reference
+    // This is used to save the user's information under "users"
+    val database = if (LocalInspectionMode.current) null else FirebaseDatabase.getInstance().reference
 
     Box(
         modifier = Modifier
@@ -105,6 +139,7 @@ fun RegisterScreen(navController: NavController) {
                     ),
                 contentAlignment = Alignment.Center
             ) {
+
                 Text(
                     text = "M",
                     color = Color.White,
@@ -152,12 +187,18 @@ fun RegisterScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(22.dp))
 
-                // Full Name
+                // FULL NAME
                 OutlinedTextField(
                     value = fullName,
                     onValueChange = {
+                        // Updates the full name when the user types
                         fullName = it
+
+                        // Clears any previous error
                         errorMessage = ""
+
+                        // Clears the success message when the user edits the form
+                        successMessage = ""
                     },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -191,12 +232,18 @@ fun RegisterScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                // Email
+                // EMAIL
                 OutlinedTextField(
                     value = email,
                     onValueChange = {
+                        // Updates the email when the user types
                         email = it
+
+                        // Clears any previous error
                         errorMessage = ""
+
+                        // Clears the success message
+                        successMessage = ""
                     },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -230,12 +277,18 @@ fun RegisterScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                // Password
+                // PASSWORD
                 OutlinedTextField(
                     value = password,
                     onValueChange = {
+                        // Updates the password when the user types
                         password = it
+
+                        // Clears any previous error
                         errorMessage = ""
+
+                        // Clears the success message
+                        successMessage = ""
                     },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -254,6 +307,7 @@ fun RegisterScreen(navController: NavController) {
                     trailingIcon = {
                         IconButton(
                             onClick = {
+                                // Changes between showing and hiding the password
                                 passwordVisible = !passwordVisible
                             }
                         ) {
@@ -292,12 +346,18 @@ fun RegisterScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                // Confirm Password
+                // CONFIRM PASSWORD
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = {
+                        // Updates the confirmation password
                         confirmPassword = it
+
+                        // Clears any previous error
                         errorMessage = ""
+
+                        // Clears the success message
+                        successMessage = ""
                     },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -316,6 +376,7 @@ fun RegisterScreen(navController: NavController) {
                     trailingIcon = {
                         IconButton(
                             onClick = {
+                                // Changes between showing and hiding the confirmation password
                                 confirmPasswordVisible =
                                     !confirmPasswordVisible
                             }
@@ -355,7 +416,7 @@ fun RegisterScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                // Error message
+                // ERROR MESSAGE
                 if (errorMessage.isNotEmpty()) {
                     Text(
                         text = errorMessage,
@@ -368,53 +429,169 @@ fun RegisterScreen(navController: NavController) {
                     )
                 }
 
+                // SUCCESS MESSAGE
+                if (successMessage.isNotEmpty()) {
+                    Text(
+                        text = successMessage,
+                        color = Color(0xFF2E7D32),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 5.dp)
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Create Account Button
+                // CREATE ACCOUNT BUTTON
                 Button(
                     onClick = {
 
                         when {
 
-                            // Check empty fields
+                            // Checks whether any required field is empty
                             fullName.isBlank() ||
                                     email.isBlank() ||
                                     password.isBlank() ||
                                     confirmPassword.isBlank() -> {
 
-                                errorMessage =
-                                    "Please fill in all fields"
+                                errorMessage = "Please fill in all fields"
+                                successMessage = ""
                             }
 
-                            // Check email format
+                            // Checks whether the email has a valid format
                             !Patterns.EMAIL_ADDRESS
                                 .matcher(email)
                                 .matches() -> {
 
                                 errorMessage =
                                     "Please enter a valid email address"
+                                successMessage = ""
                             }
 
-                            // Check password length
+                            // Checks whether the password has at least 6 characters
                             password.length < 6 -> {
 
                                 errorMessage =
                                     "Password must be at least 6 characters"
+                                successMessage = ""
                             }
 
-                            // Check passwords match
+                            // Checks whether both passwords are the same
                             password != confirmPassword -> {
 
                                 errorMessage =
                                     "Passwords do not match"
+                                successMessage = ""
                             }
 
-                            // Everything is correct
                             else -> {
 
+                                // Clears previous messages before registration
                                 errorMessage = ""
+                                successMessage = ""
 
-                                // Firebase registration will be added here
+                                // Creates the user's account in Firebase Authentication
+                                auth?.createUserWithEmailAndPassword(
+                                    email.trim(),
+                                    password
+                                )
+                                    ?.addOnCompleteListener { task ->
+
+                                        if (task.isSuccessful) {
+
+                                            // Gets the newly created Firebase user
+                                            val user = auth?.currentUser
+
+                                            // Gets the unique ID assigned to the user by Firebase
+                                            val uid = user?.uid
+
+                                            if (uid != null) {
+
+                                                // Creates the data that will be stored
+                                                // for this user in Realtime Database
+                                                val userData = hashMapOf(
+                                                    "email" to email.trim(),
+                                                    "password" to password,
+                                                    "username" to fullName.trim(),
+                                                    "uid" to uid,
+                                                    "role" to "user"
+                                                )
+
+                                                // Saves the user information under:
+                                                // users -> user's UID
+                                                database
+                                                    ?.child("users")
+                                                    ?.child(uid)
+                                                    ?.setValue(userData)
+                                                    ?.addOnCompleteListener { databaseTask ->
+
+                                                        if (databaseTask.isSuccessful) {
+
+                                                            // Creates an update for the Firebase
+                                                            // Authentication user's display name
+                                                            val profileUpdates =
+                                                                userProfileChangeRequest {
+                                                                    displayName =
+                                                                        fullName.trim()
+                                                                }
+
+                                                            // Saves the user's full name
+                                                            // as their Firebase display name
+                                                            user?.updateProfile(
+                                                                profileUpdates
+                                                            )
+
+                                                            // Shows the success message
+                                                            successMessage =
+                                                                "Account registered successfully!"
+
+                                                            // Waits 1.5 seconds before
+                                                            // moving to the Home Screen
+                                                            Handler(
+                                                                Looper.getMainLooper()
+                                                            ).postDelayed({
+
+                                                                // Takes the user to the Home Screen
+                                                                navController.navigate(
+                                                                    ROUT_HOME
+                                                                )
+
+                                                            }, 1500)
+
+                                                        } else {
+
+                                                            // Shows the database error
+                                                            // if saving the user information fails
+                                                            errorMessage =
+                                                                databaseTask.exception?.message
+                                                                    ?: "Failed to save user information"
+
+                                                            successMessage = ""
+                                                        }
+                                                    }
+
+                                            } else {
+
+                                                // Handles the situation where
+                                                // Firebase did not return a user ID
+                                                errorMessage =
+                                                    "Unable to get user information"
+
+                                                successMessage = ""
+                                            }
+
+                                        } else {
+
+                                            // Shows the Firebase registration error
+                                            errorMessage =
+                                                task.exception?.message
+                                                    ?: "Registration failed"
+
+                                            successMessage = ""
+                                        }
+                                    }
                             }
                         }
                     },
@@ -445,7 +622,7 @@ fun RegisterScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Already Have An Account
+                // ALREADY HAVE AN ACCOUNT
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
@@ -464,6 +641,8 @@ fun RegisterScreen(navController: NavController) {
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.clickable {
+
+                            // Takes the user to the Login Screen
                             navController.navigate(ROUT_LOGIN)
                         }
                     )
@@ -477,6 +656,7 @@ fun RegisterScreen(navController: NavController) {
 @Composable
 fun RegisterScreenPreview() {
 
+    // Creates a navigation controller for the Preview
     RegisterScreen(
         navController = rememberNavController()
     )

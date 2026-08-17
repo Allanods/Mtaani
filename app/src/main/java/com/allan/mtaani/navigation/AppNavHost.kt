@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.allan.mtaani.ui.screens.authentication.LoginScreen
 import com.allan.mtaani.ui.screens.authentication.RegisterScreen
+import com.allan.mtaani.ui.screens.forgotpassword.ForgotPasswordScreen
 
 import com.allan.mtaani.ui.screens.home.HomeScreen
 import com.allan.mtaani.ui.screens.onboading.onboadingScreen1
@@ -58,6 +59,10 @@ fun AppNavHost(
 
         composable(ROUT_REPORT) {
             ReportScreen(navController)
+        }
+
+        composable(ROUT_FORGOTPASSWORD) {
+            ForgotPasswordScreen(navController)
         }
 
 

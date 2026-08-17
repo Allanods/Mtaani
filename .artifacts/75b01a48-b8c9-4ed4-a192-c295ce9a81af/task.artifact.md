@@ -1,0 +1,5 @@
+- [x] Make `ForgotPasswordScreen.kt` preview-safe
+- [x] Make `LoginScreen.kt` preview-safe
+- [x] Make `RegisterScreen.kt` preview-safe
+- [x] Verify previews render successfully
+- [x] Build project to ensure no regressions

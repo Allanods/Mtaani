@@ -1,4 +1,4 @@
-package com.allan.mtaani.ui.screens.authentication
+package com.allan.mtaani.ui.screens.forgotpassword
 
 import android.util.Patterns
 import androidx.compose.foundation.background
@@ -19,11 +19,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -41,46 +39,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.allan.mtaani.navigation.ROUT_FORGOTPASSWORD
-import com.allan.mtaani.navigation.ROUT_HOME
-import com.allan.mtaani.navigation.ROUT_REGISTER
-
+import com.allan.mtaani.navigation.ROUT_LOGIN
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun ForgotPasswordScreen(navController: NavController) {
 
     // Stores the email entered by the user
     var email by remember { mutableStateOf("") }
 
-    // Stores the password entered by the user
-    var password by remember { mutableStateOf("") }
-
-    // Controls whether the password is visible or hidden
-    var passwordVisible by remember { mutableStateOf(false) }
-
-    // Stores login validation or Firebase error messages
+    // Stores an error message
     var errorMessage by remember { mutableStateOf("") }
 
-    // Main green color used throughout the login screen
+    // Stores a success message
+    var successMessage by remember { mutableStateOf("") }
+
+    // Main Mtaani green color
     val mtaaniGreen = Color(0xFF0B5D45)
 
     // Main dark text color
     val darkText = Color(0xFF1B1B1B)
 
-    // Color used for hints and secondary text
+    // Hint and secondary text color
     val hintText = Color(0xFF777777)
 
-    // Gets the Firebase Authentication service
-    // This is used to log the user in with their email and password
+    // Gets Firebase Authentication
     val auth = if (LocalInspectionMode.current) null else FirebaseAuth.getInstance()
 
     Box(
@@ -97,7 +86,7 @@ fun LoginScreen(navController: NavController) {
             )
     ) {
 
-        // Decorative circles
+        // Decorative circle at the top right
         Box(
             modifier = Modifier
                 .size(250.dp)
@@ -108,6 +97,7 @@ fun LoginScreen(navController: NavController) {
                 .align(Alignment.TopEnd)
         )
 
+        // Decorative circle at the bottom left
         Box(
             modifier = Modifier
                 .size(190.dp)
@@ -131,6 +121,28 @@ fun LoginScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            // BACK BUTTON
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+
+                IconButton(
+                    onClick = {
+                        navController.navigate(ROUT_LOGIN)
+                    }
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.White
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(5.dp))
+
             // MTAANI LOGO
             Box(
                 modifier = Modifier
@@ -153,23 +165,23 @@ fun LoginScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(22.dp))
 
             Text(
-                text = "Welcome Back",
+                text = "Forgot Password?",
                 color = Color.White,
-                fontSize = 34.sp,
+                fontSize = 32.sp,
                 fontWeight = FontWeight.ExtraBold
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Stay connected to your community",
+                text = "Reset your Mtaani account password",
                 color = Color.White.copy(alpha = 0.88f),
                 fontSize = 15.sp
             )
 
             Spacer(modifier = Modifier.height(35.dp))
 
-            // LOGIN CARD
+            // FORGOT PASSWORD CARD
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -182,7 +194,7 @@ fun LoginScreen(navController: NavController) {
             ) {
 
                 Text(
-                    text = "Login",
+                    text = "Reset Password",
                     color = darkText,
                     fontSize = 25.sp,
                     fontWeight = FontWeight.Bold
@@ -191,19 +203,20 @@ fun LoginScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Enter your details to continue",
+                    text = "Enter the email address connected to your account and we will send you a password reset link.",
                     color = hintText,
                     fontSize = 14.sp
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // EMAIL
+                // EMAIL FIELD
                 OutlinedTextField(
                     value = email,
                     onValueChange = {
                         email = it
                         errorMessage = ""
+                        successMessage = ""
                     },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -235,88 +248,6 @@ fun LoginScreen(navController: NavController) {
                     )
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // PASSWORD
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = {
-                        password = it
-                        errorMessage = ""
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    label = {
-                        Text("Password")
-                    },
-                    placeholder = {
-                        Text("Enter your password")
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Lock,
-                            contentDescription = "Password"
-                        )
-                    },
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                passwordVisible = !passwordVisible
-                            }
-                        ) {
-                            Icon(
-                                imageVector =
-                                    if (passwordVisible)
-                                        Icons.Default.VisibilityOff
-                                    else
-                                        Icons.Default.Visibility,
-                                contentDescription = "Show password"
-                            )
-                        }
-                    },
-                    visualTransformation =
-                        if (passwordVisible)
-                            VisualTransformation.None
-                        else
-                            PasswordVisualTransformation(),
-                    shape = RoundedCornerShape(18.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = darkText,
-                        unfocusedTextColor = darkText,
-                        focusedPlaceholderColor = hintText,
-                        unfocusedPlaceholderColor = hintText,
-                        focusedLabelColor = mtaaniGreen,
-                        unfocusedLabelColor = hintText,
-                        focusedBorderColor = mtaaniGreen,
-                        unfocusedBorderColor = Color(0xFF999999),
-                        focusedLeadingIconColor = mtaaniGreen,
-                        unfocusedLeadingIconColor = Color(0xFF777777),
-                        focusedTrailingIconColor = mtaaniGreen,
-                        unfocusedTrailingIconColor = Color(0xFF777777),
-                        cursorColor = mtaaniGreen
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // FORGOT PASSWORD
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-
-                    Text(
-                        text = "Forgot password?",
-                        color = mtaaniGreen,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable {
-                            // Takes the user to the Forgot Password Screen
-                            navController.navigate(ROUT_FORGOTPASSWORD)
-                        }
-                    )
-                }
-
                 // ERROR MESSAGE
                 if (errorMessage.isNotEmpty()) {
 
@@ -331,25 +262,41 @@ fun LoginScreen(navController: NavController) {
                     )
                 }
 
+                // SUCCESS MESSAGE
+                if (successMessage.isNotEmpty()) {
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = successMessage,
+                        color = Color(0xFF2E7D32),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(25.dp))
 
-                // LOGIN BUTTON
+                // SEND RESET LINK BUTTON
                 Button(
                     onClick = {
 
                         when {
 
-                            // Checks whether email or password is empty
-                            email.isBlank() || password.isBlank() -> {
+                            email.isBlank() -> {
+
+                                successMessage = ""
 
                                 errorMessage =
-                                    "Please enter your email and password"
+                                    "Please enter your email address"
                             }
 
-                            // Checks whether the email has a valid format
                             !Patterns.EMAIL_ADDRESS
                                 .matcher(email.trim())
                                 .matches() -> {
+
+                                successMessage = ""
 
                                 errorMessage =
                                     "Please enter a valid email address"
@@ -357,68 +304,29 @@ fun LoginScreen(navController: NavController) {
 
                             else -> {
 
-                                // Clears any previous error
                                 errorMessage = ""
+                                successMessage = ""
 
-                                // Sends the email and password to Firebase Authentication
-                                auth?.signInWithEmailAndPassword(
-                                    email.trim(),
-                                    password
+                                // Firebase sends the password reset email
+                                auth?.sendPasswordResetEmail(
+                                    email.trim()
                                 )
                                     ?.addOnCompleteListener { task ->
 
                                         if (task.isSuccessful) {
 
-                                            // Login was successful
                                             errorMessage = ""
 
-                                            // Takes the logged-in user to the Home Screen
-                                            navController.navigate(
-                                                ROUT_HOME
-                                            ) {
-
-                                                // Removes the login screen
-                                                // so the user cannot return to it using Back
-                                                popUpTo(
-                                                    navController
-                                                        .currentDestination
-                                                        ?.route ?: ""
-                                                ) {
-                                                    inclusive = true
-                                                }
-                                            }
+                                            successMessage =
+                                                "Password reset link sent! Check your email."
 
                                         } else {
 
-                                            // Login failed
+                                            successMessage = ""
+
                                             errorMessage =
-                                                when {
-
-                                                    // Handles incorrect password
-                                                    task.exception
-                                                        ?.message
-                                                        ?.contains(
-                                                            "password is invalid",
-                                                            ignoreCase = true
-                                                        ) == true ->
-                                                        "Incorrect email or password"
-
-                                                    // Handles email that does not have an account
-                                                    task.exception
-                                                        ?.message
-                                                        ?.contains(
-                                                            "no user record",
-                                                            ignoreCase = true
-                                                        ) == true ->
-                                                        "No account found with this email"
-
-                                                    // Shows Firebase's error if it does not
-                                                    // match the cases above
-                                                    else ->
-                                                        task.exception
-                                                            ?.message
-                                                            ?: "Login failed"
-                                                }
+                                                task.exception?.message
+                                                    ?: "Failed to send password reset email"
                                         }
                                     }
                             }
@@ -435,7 +343,7 @@ fun LoginScreen(navController: NavController) {
                 ) {
 
                     Text(
-                        text = "LOGIN",
+                        text = "SEND RESET LINK",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp
@@ -445,13 +353,13 @@ fun LoginScreen(navController: NavController) {
 
                     Icon(
                         imageVector = Icons.Default.ArrowForward,
-                        contentDescription = "Login"
+                        contentDescription = "Send reset link"
                     )
                 }
 
                 Spacer(modifier = Modifier.height(22.dp))
 
-                // REGISTER
+                // BACK TO LOGIN
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
@@ -459,20 +367,20 @@ fun LoginScreen(navController: NavController) {
                 ) {
 
                     Text(
-                        text = "Don't have an account? ",
+                        text = "Remember your password? ",
                         color = hintText,
                         fontSize = 14.sp
                     )
 
                     Text(
-                        text = "Create Account",
+                        text = "Login",
                         color = mtaaniGreen,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable {
-                            // Takes the user to the Register Screen
-                            navController.navigate(ROUT_REGISTER)
-                        }
+                        modifier = Modifier
+                            .clickable {
+                                navController.navigate(ROUT_LOGIN)
+                            }
                     )
                 }
             }
@@ -492,9 +400,9 @@ fun LoginScreen(navController: NavController) {
 
 @Preview(showBackground = true)
 @Composable
-fun LoginScreenPreview() {
+fun ForgotPasswordScreenPreview() {
 
-    LoginScreen(
+    ForgotPasswordScreen(
         navController = rememberNavController()
     )
 }
