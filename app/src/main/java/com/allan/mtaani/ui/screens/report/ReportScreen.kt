@@ -48,6 +48,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 
+import com.allan.mtaani.navigation.ROUT_HOME
+import com.google.firebase.database.FirebaseDatabase
+import com.models.Report
+import java.util.UUID
+
 @Composable
 fun ReportScreen(navController: NavController) {
 
@@ -62,6 +67,12 @@ fun ReportScreen(navController: NavController) {
     val darkText = Color(0xFF1B1B1B)
     val hintText = Color(0xFF777777)
     val backgroundColor = Color(0xFFF7F9F8)
+
+    // Firebase Realtime Database
+    val database = FirebaseDatabase.getInstance()
+
+    // Reference to the "reports" node in Firebase
+    val reportsRef = database.getReference("reports")
 
     Box(
         modifier = Modifier
@@ -424,8 +435,40 @@ fun ReportScreen(navController: NavController) {
 
                         showError = false
 
-                        // TODO: Validate the form and save the report to Firebase
-                        // TODO: Navigate back to Home Screen after successful submission
+                        // Generate a unique ID for this report
+                        val reportId = UUID.randomUUID().toString()
+
+                        // Create the report using your Report model
+                        val report = Report(
+                            reportId = reportId,
+                            category = selectedCategory,
+                            description = description,
+                            location = location,
+                            timestamp = System.currentTimeMillis(),
+                            upVotes = 0,
+                            downVotes = 0,
+                            verified = false
+                        )
+
+                        // Save the report to Firebase Realtime Database
+                        reportsRef
+                            .child(reportId)
+                            .setValue(report)
+                            .addOnSuccessListener {
+
+                                // Report has been successfully saved
+                                // Go back to the Home Screen
+                                navController.navigate(ROUT_HOME) {
+                                    popUpTo(ROUT_HOME) {
+                                        inclusive = false
+                                    }
+                                }
+                            }
+                            .addOnFailureListener {
+
+                                // Firebase failed to save the report
+                                showError = true
+                            }
                     }
                 },
                 modifier = Modifier
