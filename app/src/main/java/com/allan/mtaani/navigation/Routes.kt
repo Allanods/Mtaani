@@ -15,3 +15,6 @@ const val ROUT_REGISTER = "register"
 const val ROUT_REPORT = "report"
 
 const val ROUT_FORGOTPASSWORD = "fogotpassword"
+
+const val ROUT_PROFILE = "profile"
+const val ROUT_ABOUT = "about"

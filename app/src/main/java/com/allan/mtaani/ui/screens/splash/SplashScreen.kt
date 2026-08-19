@@ -209,7 +209,7 @@ fun SplashScreen(navController: NavController) {
             ) {
 
                 Text(
-                    text = "CONTINUE AS A GUEST",
+                    text = "CONTINUE",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp

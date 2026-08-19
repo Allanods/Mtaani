@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.allan.mtaani" />
+                  <option name="mobileSdkAppId" value="1:44558573061:android:340458bd51fdcff703066c" />
+                  <option name="projectId" value="mtaani-b5215" />
+                  <option name="projectNumber" value="44558573061" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.allan.mtaani.ui.screens.about.AboutScreen
 import com.allan.mtaani.ui.screens.authentication.LoginScreen
 import com.allan.mtaani.ui.screens.authentication.RegisterScreen
 import com.allan.mtaani.ui.screens.forgotpassword.ForgotPasswordScreen
@@ -14,6 +15,7 @@ import com.allan.mtaani.ui.screens.home.HomeScreen
 import com.allan.mtaani.ui.screens.onboading.onboadingScreen1
 import com.allan.mtaani.ui.screens.onboading.onboadingScreen2
 import com.allan.mtaani.ui.screens.onboading.onboadingScreen3
+import com.allan.mtaani.ui.screens.profile.ProfileScreen
 import com.allan.mtaani.ui.screens.report.ReportScreen
 import com.allan.mtaani.ui.screens.splash.SplashScreen
 
@@ -63,6 +65,14 @@ fun AppNavHost(
 
         composable(ROUT_FORGOTPASSWORD) {
             ForgotPasswordScreen(navController)
+        }
+
+        composable(ROUT_PROFILE) {
+            ProfileScreen(navController)
+        }
+
+        composable(ROUT_ABOUT) {
+            AboutScreen(navController)
         }
 
 

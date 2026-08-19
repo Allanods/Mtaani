@@ -26,12 +26,14 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,30 +51,157 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 
 import com.allan.mtaani.navigation.ROUT_HOME
+import com.allan.mtaani.navigation.ROUT_REGISTER
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.models.Report
+
 import java.util.UUID
+
 
 @Composable
 fun ReportScreen(navController: NavController) {
 
-    var description by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("") }
+    // ------------------------------------------------------------
+    // FORM DATA
+    // ------------------------------------------------------------
 
-    // Validation error message
-    var showError by remember { mutableStateOf(false) }
+    var description by remember {
+        mutableStateOf("")
+    }
+
+    var location by remember {
+        mutableStateOf("")
+    }
+
+    var selectedCategory by remember {
+        mutableStateOf("")
+    }
+
+
+    // ------------------------------------------------------------
+    // VALIDATION ERROR
+    // ------------------------------------------------------------
+
+    var showError by remember {
+        mutableStateOf(false)
+    }
+
+
+    // ------------------------------------------------------------
+    // ACCOUNT DIALOG
+    // ------------------------------------------------------------
+    /*
+     * This controls the message shown when someone tries
+     * to submit without having an account.
+     */
+
+    var showAccountDialog by remember {
+        mutableStateOf(false)
+    }
+
+
+    // ------------------------------------------------------------
+    // COLORS
+    // ------------------------------------------------------------
 
     val mtaaniGreen = Color(0xFF0B5D45)
+
     val darkText = Color(0xFF1B1B1B)
+
     val hintText = Color(0xFF777777)
+
     val backgroundColor = Color(0xFFF7F9F8)
 
-    // Firebase Realtime Database
+
+    // ------------------------------------------------------------
+    // FIREBASE
+    // ------------------------------------------------------------
+
     val database = FirebaseDatabase.getInstance()
 
-    // Reference to the "reports" node in Firebase
     val reportsRef = database.getReference("reports")
+
+    // Firebase Authentication
+    val auth = FirebaseAuth.getInstance()
+
+
+    // ------------------------------------------------------------
+    // ACCOUNT REQUIRED DIALOG
+    // ------------------------------------------------------------
+    /*
+     * A person can fill the form even without an account.
+     *
+     * However, when they try to submit, this dialog appears.
+     */
+
+    if (showAccountDialog) {
+
+        AlertDialog(
+            onDismissRequest = {
+                showAccountDialog = false
+            },
+
+            title = {
+                Text(
+                    text = "Account Required",
+                    fontWeight = FontWeight.Bold,
+                    color = darkText
+                )
+            },
+
+            text = {
+                Text(
+                    text = "You need to create an account before you can submit a report. Your report is ready — create an account first to send it.",
+                    color = hintText
+                )
+            },
+
+            confirmButton = {
+
+                Button(
+                    onClick = {
+
+                        showAccountDialog = false
+
+                        // Go to Register Screen
+                        navController.navigate(ROUT_REGISTER)
+
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = mtaaniGreen,
+                        contentColor = Color.White
+                    )
+                ) {
+
+                    Text(
+                        text = "CREATE ACCOUNT",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+
+            dismissButton = {
+
+                TextButton(
+                    onClick = {
+                        showAccountDialog = false
+                    }
+                ) {
+
+                    Text(
+                        text = "CANCEL",
+                        color = mtaaniGreen
+                    )
+                }
+            }
+        )
+    }
+
+
+    // ------------------------------------------------------------
+    // MAIN SCREEN
+    // ------------------------------------------------------------
 
     Box(
         modifier = Modifier
@@ -83,7 +212,9 @@ fun ReportScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(
+                    rememberScrollState()
+                )
                 .padding(
                     start = 20.dp,
                     end = 20.dp,
@@ -92,7 +223,11 @@ fun ReportScreen(navController: NavController) {
                 )
         ) {
 
+
+            // ----------------------------------------------------
             // HEADER
+            // ----------------------------------------------------
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -116,7 +251,9 @@ fun ReportScreen(navController: NavController) {
                     )
                 }
 
-                Spacer(modifier = Modifier.width(13.dp))
+                Spacer(
+                    modifier = Modifier.width(13.dp)
+                )
 
                 Column(
                     modifier = Modifier.weight(1f)
@@ -140,7 +277,9 @@ fun ReportScreen(navController: NavController) {
                             modifier = Modifier.size(15.dp)
                         )
 
-                        Spacer(modifier = Modifier.width(3.dp))
+                        Spacer(
+                            modifier = Modifier.width(3.dp)
+                        )
 
                         Text(
                             text = "Karuri",
@@ -151,9 +290,16 @@ fun ReportScreen(navController: NavController) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(25.dp))
 
+            Spacer(
+                modifier = Modifier.height(25.dp)
+            )
+
+
+            // ----------------------------------------------------
             // INTRODUCTION CARD
+            // ----------------------------------------------------
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -173,7 +319,9 @@ fun ReportScreen(navController: NavController) {
                         fontWeight = FontWeight.Bold
                     )
 
-                    Spacer(modifier = Modifier.height(7.dp))
+                    Spacer(
+                        modifier = Modifier.height(7.dp)
+                    )
 
                     Text(
                         text = "Report a local issue so people in Karuri can stay informed.",
@@ -184,9 +332,16 @@ fun ReportScreen(navController: NavController) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(25.dp))
 
+            Spacer(
+                modifier = Modifier.height(25.dp)
+            )
+
+
+            // ----------------------------------------------------
             // CATEGORY
+            // ----------------------------------------------------
+
             Text(
                 text = "What is the issue?",
                 color = darkText,
@@ -194,9 +349,15 @@ fun ReportScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
+
+            // ----------------------------------------------------
             // CATEGORY ROW 1
+            // ----------------------------------------------------
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -209,10 +370,13 @@ fun ReportScreen(navController: NavController) {
                     iconColor = Color(0xFFE5A900),
                     modifier = Modifier.weight(1f),
                     onClick = {
+
                         selectedCategory = "Electricity"
+
                         showError = false
                     }
                 )
+
 
                 ReportCategory(
                     icon = Icons.Default.WaterDrop,
@@ -221,15 +385,24 @@ fun ReportScreen(navController: NavController) {
                     iconColor = Color(0xFF1976D2),
                     modifier = Modifier.weight(1f),
                     onClick = {
+
                         selectedCategory = "Water"
+
                         showError = false
                     }
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
 
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+
+
+            // ----------------------------------------------------
             // CATEGORY ROW 2
+            // ----------------------------------------------------
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -242,10 +415,13 @@ fun ReportScreen(navController: NavController) {
                     iconColor = mtaaniGreen,
                     modifier = Modifier.weight(1f),
                     onClick = {
+
                         selectedCategory = "Waste"
+
                         showError = false
                     }
                 )
+
 
                 ReportCategory(
                     icon = Icons.Default.Warning,
@@ -254,15 +430,24 @@ fun ReportScreen(navController: NavController) {
                     iconColor = Color(0xFFD32F2F),
                     modifier = Modifier.weight(1f),
                     onClick = {
+
                         selectedCategory = "Other"
+
                         showError = false
                     }
                 )
             }
 
-            Spacer(modifier = Modifier.height(25.dp))
 
+            Spacer(
+                modifier = Modifier.height(25.dp)
+            )
+
+
+            // ----------------------------------------------------
             // LOCATION
+            // ----------------------------------------------------
+
             Text(
                 text = "Where is it happening?",
                 color = darkText,
@@ -270,45 +455,75 @@ fun ReportScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+
 
             OutlinedTextField(
                 value = location,
+
                 onValueChange = {
+
                     location = it
+
                     showError = false
                 },
+
                 modifier = Modifier.fillMaxWidth(),
+
                 singleLine = true,
+
                 label = {
                     Text("Area / Location")
                 },
+
                 placeholder = {
                     Text("e.g. Near Karori Centre")
                 },
+
                 leadingIcon = {
+
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = "Location"
                     )
                 },
+
                 shape = RoundedCornerShape(17.dp),
+
                 colors = OutlinedTextFieldDefaults.colors(
+
                     focusedTextColor = darkText,
+
                     unfocusedTextColor = darkText,
+
                     focusedLabelColor = mtaaniGreen,
+
                     unfocusedLabelColor = hintText,
+
                     focusedBorderColor = mtaaniGreen,
+
                     unfocusedBorderColor = Color(0xFFB8BFBC),
+
                     focusedLeadingIconColor = mtaaniGreen,
+
                     unfocusedLeadingIconColor = hintText,
+
                     cursorColor = mtaaniGreen
                 )
             )
 
-            Spacer(modifier = Modifier.height(22.dp))
 
+            Spacer(
+                modifier = Modifier.height(22.dp)
+            )
+
+
+            // ----------------------------------------------------
             // DESCRIPTION
+            // ----------------------------------------------------
+
             Text(
                 text = "Describe the issue",
                 color = darkText,
@@ -316,48 +531,77 @@ fun ReportScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+
 
             OutlinedTextField(
                 value = description,
+
                 onValueChange = {
+
                     description = it
+
                     showError = false
                 },
+
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(145.dp),
+
                 label = {
                     Text("Description")
                 },
+
                 placeholder = {
                     Text(
                         "Briefly explain what happened..."
                     )
                 },
+
                 leadingIcon = {
+
                     Icon(
                         imageVector = Icons.Default.Description,
                         contentDescription = "Description"
                     )
                 },
+
                 shape = RoundedCornerShape(17.dp),
+
                 colors = OutlinedTextFieldDefaults.colors(
+
                     focusedTextColor = darkText,
+
                     unfocusedTextColor = darkText,
+
                     focusedLabelColor = mtaaniGreen,
+
                     unfocusedLabelColor = hintText,
+
                     focusedBorderColor = mtaaniGreen,
+
                     unfocusedBorderColor = Color(0xFFB8BFBC),
+
                     focusedLeadingIconColor = mtaaniGreen,
+
                     unfocusedLeadingIconColor = hintText,
+
                     cursorColor = mtaaniGreen
                 )
             )
 
-            Spacer(modifier = Modifier.height(22.dp))
 
+            Spacer(
+                modifier = Modifier.height(22.dp)
+            )
+
+
+            // ----------------------------------------------------
             // VERIFICATION NOTICE
+            // ----------------------------------------------------
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -366,6 +610,7 @@ fun ReportScreen(navController: NavController) {
                         RoundedCornerShape(18.dp)
                     )
                     .padding(15.dp),
+
                 verticalAlignment = Alignment.Top
             ) {
 
@@ -376,7 +621,9 @@ fun ReportScreen(navController: NavController) {
                     modifier = Modifier.size(22.dp)
                 )
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(
+                    modifier = Modifier.width(10.dp)
+                )
 
                 Column {
 
@@ -387,7 +634,9 @@ fun ReportScreen(navController: NavController) {
                         fontWeight = FontWeight.Bold
                     )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(
+                        modifier = Modifier.height(4.dp)
+                    )
 
                     Text(
                         text = "Your report may be reviewed and verified before it is marked as verified for other residents.",
@@ -398,16 +647,27 @@ fun ReportScreen(navController: NavController) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(25.dp))
 
+            Spacer(
+                modifier = Modifier.height(25.dp)
+            )
+
+
+            // ----------------------------------------------------
             // VALIDATION MESSAGE
+            // ----------------------------------------------------
+
             if (showError) {
 
                 Text(
                     text = "Please select an issue, enter the location, and describe the issue before submitting.",
+
                     color = Color(0xFFD32F2F),
+
                     fontSize = 12.sp,
+
                     fontWeight = FontWeight.Medium,
+
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
@@ -417,68 +677,139 @@ fun ReportScreen(navController: NavController) {
                 )
             }
 
+
+            // ----------------------------------------------------
             // SUBMIT BUTTON
+            // ----------------------------------------------------
+
             Button(
+
                 onClick = {
 
-                    // Check whether every required field has been filled
+                    // ------------------------------------------------
+                    // STEP 1:
+                    // CHECK THAT THE FORM IS COMPLETE
+                    // ------------------------------------------------
+
                     if (
                         selectedCategory.isBlank() ||
                         location.isBlank() ||
                         description.isBlank()
                     ) {
 
-                        // Show error instead of submitting
                         showError = true
 
                     } else {
 
                         showError = false
 
-                        // Generate a unique ID for this report
-                        val reportId = UUID.randomUUID().toString()
 
-                        // Create the report using your Report model
-                        val report = Report(
-                            reportId = reportId,
-                            category = selectedCategory,
-                            description = description,
-                            location = location,
-                            timestamp = System.currentTimeMillis(),
-                            upVotes = 0,
-                            downVotes = 0,
-                            verified = false
-                        )
+                        // --------------------------------------------
+                        // STEP 2:
+                        // CHECK IF USER HAS AN ACCOUNT
+                        // --------------------------------------------
+                        /*
+                         * FirebaseAuth.currentUser will be:
+                         *
+                         * NOT NULL = user is logged in
+                         *
+                         * NULL = user has no account/logged out
+                         */
 
-                        // Save the report to Firebase Realtime Database
-                        reportsRef
-                            .child(reportId)
-                            .setValue(report)
-                            .addOnSuccessListener {
+                        val currentUser = auth.currentUser
 
-                                // Report has been successfully saved
-                                // Go back to the Home Screen
-                                navController.navigate(ROUT_HOME) {
-                                    popUpTo(ROUT_HOME) {
-                                        inclusive = false
+
+                        if (currentUser == null) {
+
+                            // ----------------------------------------
+                            // USER IS NOT LOGGED IN
+                            // ----------------------------------------
+                            /*
+                             * Do NOT submit the report.
+                             *
+                             * Show the Create Account dialog.
+                             */
+
+                            showAccountDialog = true
+
+                        } else {
+
+                            // ----------------------------------------
+                            // USER IS LOGGED IN
+                            // ----------------------------------------
+                            /*
+                             * Now the report can be submitted.
+                             */
+
+                            val reportId =
+                                UUID.randomUUID().toString()
+
+
+                            // Create the report
+                            val report = Report(
+
+                                reportId = reportId,
+
+                                category = selectedCategory,
+
+                                description = description,
+
+                                location = location,
+
+                                timestamp =
+                                    System.currentTimeMillis(),
+
+                                upVotes = 0,
+
+                                downVotes = 0,
+
+                                verified = false
+                            )
+
+
+                            // ----------------------------------------
+                            // SAVE TO FIREBASE
+                            // ----------------------------------------
+
+                            reportsRef
+                                .child(reportId)
+                                .setValue(report)
+
+                                .addOnSuccessListener {
+
+                                    // Report successfully submitted.
+
+                                    navController.navigate(
+                                        ROUT_HOME
+                                    ) {
+
+                                        popUpTo(ROUT_HOME) {
+                                            inclusive = false
+                                        }
                                     }
                                 }
-                            }
-                            .addOnFailureListener {
 
-                                // Firebase failed to save the report
-                                showError = true
-                            }
+                                .addOnFailureListener {
+
+                                    // Firebase failed to save.
+
+                                    showError = true
+                                }
+                        }
                     }
                 },
+
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(58.dp),
+
                 shape = RoundedCornerShape(18.dp),
+
                 colors = ButtonDefaults.buttonColors(
                     containerColor = mtaaniGreen,
                     contentColor = Color.White
                 )
+
             ) {
 
                 Icon(
@@ -487,7 +818,9 @@ fun ReportScreen(navController: NavController) {
                     modifier = Modifier.size(20.dp)
                 )
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(
+                    modifier = Modifier.width(10.dp)
+                )
 
                 Text(
                     text = "SUBMIT REPORT",
@@ -497,14 +830,27 @@ fun ReportScreen(navController: NavController) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+
+            Spacer(
+                modifier = Modifier.height(18.dp)
+            )
+
+
+            // ----------------------------------------------------
+            // FOOTER
+            // ----------------------------------------------------
 
             Text(
                 text = "MTAANI • KARURI • COMMUNITY FIRST",
+
                 modifier = Modifier.fillMaxWidth(),
+
                 color = Color(0xFF999999),
+
                 fontSize = 10.sp,
+
                 fontWeight = FontWeight.Bold,
+
                 letterSpacing = 1.sp
             )
         }
@@ -512,7 +858,10 @@ fun ReportScreen(navController: NavController) {
 }
 
 
+// ================================================================
 // REPORT CATEGORY
+// ================================================================
+
 @Composable
 fun ReportCategory(
     icon: ImageVector,
@@ -529,7 +878,9 @@ fun ReportCategory(
         else
             Color.White
 
+
     Column(
+
         modifier = modifier
             .height(92.dp)
             .background(
@@ -540,8 +891,11 @@ fun ReportCategory(
                 onClick()
             }
             .padding(10.dp),
+
         horizontalAlignment = Alignment.CenterHorizontally,
+
         verticalArrangement = Arrangement.Center
+
     ) {
 
         Icon(
@@ -551,7 +905,11 @@ fun ReportCategory(
             modifier = Modifier.size(27.dp)
         )
 
-        Spacer(modifier = Modifier.height(6.dp))
+
+        Spacer(
+            modifier = Modifier.height(6.dp)
+        )
+
 
         Text(
             text = title,
@@ -560,9 +918,12 @@ fun ReportCategory(
             fontWeight = FontWeight.Medium
         )
 
+
         if (selected) {
 
-            Spacer(modifier = Modifier.height(3.dp))
+            Spacer(
+                modifier = Modifier.height(3.dp)
+            )
 
             Text(
                 text = "Selected",
@@ -574,6 +935,10 @@ fun ReportCategory(
     }
 }
 
+
+// ================================================================
+// PREVIEW
+// ================================================================
 
 @Preview(showBackground = true)
 @Composable
